@@ -61,7 +61,79 @@ void load_and_run_elf(char **argv)
   munmap(virtual_mem,phdr->p_memsz);
 }
 
+int check_which_endian()
+{
+  int i=10;
+  char c=(char)&i;
+  if(*c==0x00)
+  {
+    return 1;                   // big endian
+  }
+  else return 0;               // little endian
+}
 
+
+/*
+ * Check if the elf file is valid
+ */
+void check_elf(char** argv)
+{
+  Elf32_Ehdr* hdr=(Elf32_Ehdr*)malloc(sizeof(Elf32_Ehdr));
+  fd = open(argv, O_RDONLY);
+  if(fd==-1){
+    printf("Error in opening the file\n");
+    exit(EXIT_FAILURE);
+  }
+  read(fd,hdr,sizeof(Elf32_Ehdr));
+  close(fd);
+
+  if(hdr->e_ident[EI_MAG0]!=ELFMAG0)
+  {
+    printf("Error: Invalid ELF file\n");
+    exit(1);
+  }
+  else if(hdr->e_ident[EI_MAG1]!=ELFMAG1)
+  {
+    printf("Error: Invalid ELF file\n");
+    exit(1);
+  }
+  else if(hdr->e_ident[EI_MAG2]!=ELFMAG2)
+  {
+    printf("Error: Invalid ELF file\n");
+    exit(1);
+  }
+  else if(hdr->e_ident[EI_MAG3]!=ELFMAG3)
+  {
+    printf("Error: Invalid ELF file\n");
+    exit(1);
+  }
+  int end=check_which_endian();
+  if(end==1 && hdr->e_ident[EI_DATA]!=ELFDATA2MSB)
+  {
+    printf("Error: Unsupported byte order\n");
+    exit(1);
+  }
+  else if(end==0 && hdr->e_ident[EI_DATA]!=ELFDATA2LSB)
+  {
+    printf("Error: Unsupported byte order\n");
+    exit(1);
+  }
+  if(hdr->e_ident[EI_CLASS]==ELFCLASSNONE)
+  {
+    printf("Error: Invalid Class\n");
+    exit(1);
+  }
+  if(hdr->e_ident[EI_VERSION]!=EV_CURRENT)
+  {
+    printf("Error: Invalid version of ELF specification\n");
+    exit(1);
+  }
+  if(hdr->e_version!=EV_CURRENT)
+  {
+    printf("Error: Invalid File version\n");
+    exit(1);
+  }
+}
 
 int main(int argc, char **argv)
 {
