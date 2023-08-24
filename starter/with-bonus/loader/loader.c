@@ -61,18 +61,6 @@ void load_and_run_elf(char **argv)
   munmap(virtual_mem,phdr->p_memsz);
 }
 
-int check_which_endian()
-{
-  int i=10;
-  char c=(char)&i;
-  if(*c==0x00)
-  {
-    return 1;                   // big endian
-  }
-  else return 0;               // little endian
-}
-
-
 /*
  * Check if the elf file is valid
  */
@@ -107,13 +95,7 @@ void check_elf(char** argv)
     printf("Error: Invalid ELF file\n");
     exit(1);
   }
-  int end=check_which_endian();
-  if(end==1 && hdr->e_ident[EI_DATA]!=ELFDATA2MSB)
-  {
-    printf("Error: Unsupported byte order\n");
-    exit(1);
-  }
-  else if(end==0 && hdr->e_ident[EI_DATA]!=ELFDATA2LSB)
+  if(hdr->e_ident[EI_DATA]!=ELFDATA2LSB)         // Assuming Little Endian System 
   {
     printf("Error: Unsupported byte order\n");
     exit(1);
