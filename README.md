@@ -53,3 +53,4 @@ Vijval Ekbote:
 Himanshu Singh:
   1. Loader.c
   2. Makefile
+Link to the GitHub repository: https://github.com/Singh-Himanshu-cpp/OS-assignment-1 
